@@ -1,111 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-    <style>
-        .carousel {
-            overflow: hidden;
-            width: 975px;
-            height: 300px;
-            position: relative;
-        }
-        .carousel-inner {
-            display: flex;
-            transition: transform 5
-             ease-in-out;
-        }
-        .carousel-item {
-            min-width: 80%;
-            height: 200px;
-            margin: 10px;
-        }
-        .weather-icon {
-            font-size: 24px;
-        }
-        .weather-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .weather-info {
-            flex: 1;
-            min-width: 300px;
-            margin-right: 20px;
-        }
-        .calendar-container {
-            flex: 1;
-            min-width: 300px;
-        }
-        .calendar {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 2px;
-        }
-        .calendar th, .calendar td {
-            border: 1px solid #e2e8f0;
-            padding: 8px;
-            text-align: center;
-        }
-        .calendar th {
-            background-color: #edf2f7;
-            font-weight: bold;
-        }
-        .calendar td {
-            height: 80px;
-            vertical-align: top;
-        }
-        .weather-icon {
-            font-size: 24px;
-        }
-        .temperature {
-            font-size: 12px;
-        }
-        /* Dark mode styles */
-        .dark body { background-color: #1a202c; color: #e2e8f0; }
-        .dark .bg-white { background-color: #2d3748; }
-        .dark .bg-gray-100 { background-color: #4a5568; }
-        .dark .text-gray-500 { color: #000000; }
-        .dark .bg-gray-50 { background-color: #2d3748; }
-        .dark .hover\:bg-gray-100:hover { background-color: #000000; }
-        .dark .border-gray-200 { border-color: #4a5568; }
-        .\ { color: #000000; }
-        .dark .text-gray-800 { color: #000000; }
-        .dark .bg-blue-500 { background-color: #2b6cb0; }
-        .dark .bg-blue-600 { background-color: #2c5282; }
-        .dark .hover\:bg-blue-700:hover { background-color: #2a4365; }
-        .dark .bg-green-500 { background-color: #48bb78; }
-        .dark .hover\:bg-green-600:hover { background-color: #38a169; }
-        .weather-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-        }
-    </style>
-</head>
+@extends('layouts.app')
+
+@section('title', 'Weather Forecast')
+
+@section('content')
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
     <header class="bg-blue-500 dark:bg-blue-800 p-4">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
-                <h1 class="text-white text-3xl font-bold mb-4">Weather App</h1>
-                <button id="themeToggle" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors duration-200">
-                    <i class="fas fa-sun dark:hidden"></i>
-                    <i class="fas fa-moon hidden dark:inline"></i>
+        <div class="flex justify-center items-center">
+            <form method="GET" action="/" class="flex relative" id="weatherForm">
+                <input type="text" name="city" id="city" placeholder="Enter city name" value="{{ $defaultCity }}" class="px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <i class="fas fa-search"></i>
                 </button>
-            </div>
-            <div class="flex justify-center items-center">
-                <form method="GET" action="/" class="flex" id="weatherForm">
-                    <input type="text" name="city" id="city" placeholder="Enter city name" class="px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-                <button onclick="refreshWeather()" class="bg-green-500 text-white px-4 py-2 rounded-r-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 ml-1">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
+                <div id="searchHistory" class="absolute top-full left-0 w-full bg-white shadow-md rounded-b-lg hidden">
+                    
+                </div>
+            </form>
+            <button onclick="refreshWeather()" class="bg-green-500 text-white px-4 py-2 rounded-r-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 ml-1">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </header>
 
@@ -242,6 +154,10 @@
 
     <script>
         function refreshWeather() {
+            document.getElementById('city').value = '{{ $defaultCity }}';
+            document.getElementById('weatherForm').submit();
+        }
+        function refreshWeather() {
         document.getElementById('city').value = '';
         document.getElementById('cityName').textContent = '....';
         document.getElementById('temperature').textContent = '-';
@@ -291,13 +207,89 @@
             localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
         });
 
-        // Check for saved theme preference or prefer-color-scheme
+        // theme
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
         if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
             html.classList.add('dark');
         }
+
+         // Search history functionality
+         const cityInput = document.getElementById('city');
+        const searchHistoryContainer = document.getElementById('searchHistory');
+        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+
+        function updateSearchHistory() {
+            searchHistoryContainer.innerHTML = '';
+            searchHistory.forEach((city, index) => {
+                const item = document.createElement('div');
+                item.className = 'p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center';
+                item.innerHTML = `
+                    <span onclick="selectCity('${city}')">${city}</span>
+                    <button onclick="deleteHistoryItem(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                searchHistoryContainer.appendChild(item);
+            });
+        }
+
+        function addToSearchHistory(city) {
+            if (!searchHistory.includes(city)) {
+                searchHistory.unshift(city);
+                if (searchHistory.length > 5) {
+                    searchHistory.pop();
+                }
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                updateSearchHistory();
+            }
+        }
+
+        function selectCity(city) {
+            cityInput.value = city;
+            searchHistoryContainer.classList.add('hidden');
+            document.getElementById('weatherForm').submit();
+        }
+
+        function deleteHistoryItem(index) {
+            searchHistory.splice(index, 1);
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            updateSearchHistory();
+
+            // Send delete request to server
+            fetch('/delete-search-history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ city: searchHistory[index] })
+            });
+        }
+
+        cityInput.addEventListener('focus', () => {
+            updateSearchHistory();
+            searchHistoryContainer.classList.remove('hidden');
+        });
+
+        cityInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                searchHistoryContainer.classList.add('hidden');
+            }, 200);
+        });
+
+        document.getElementById('weatherForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const city = cityInput.value.trim();
+            if (city) {
+                addToSearchHistory(city);
+                e.target.submit();
+            }
+        });
+
+        // Initialize search history
+        updateSearchHistory();
     </script>
 </body>
-</html>
+@endsection

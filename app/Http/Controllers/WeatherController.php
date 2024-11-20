@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class WeatherController extends Controller
 {
     public function index(Request $request)
     {
-        $city = $request->input('city');
+        $user = Auth::user();
+        $city = $request->input('city', $user ? $user->location : null);
         $apiKey = env('OPENWEATHER_API_KEY');
 
         // Fetch weather data for the searched city
@@ -44,9 +46,11 @@ class WeatherController extends Controller
             'carouselData' => $carouselData,
             'currentDate' => $currentDate,
             'timezone' => $timezone,
-            'monthlyForecast' => $monthlyForecast
+            'monthlyForecast' => $monthlyForecast,
+            'defaultCity' => $city
         ]);
     }
+
 
     private function getWeatherData($city, $apiKey)
     {
@@ -139,5 +143,13 @@ class WeatherController extends Controller
         ];
 
         return $icons[$weatherMain] ?? '🌈';
+    }
+    
+    public function deleteSearchHistory(Request $request)
+    {
+        $city = $request->input('city');
+        // In a real application, you might want to store the search history in the database
+        // and delete it there. For now, we'll just return a success response.
+        return response()->json(['success' => true]);
     }
 }
